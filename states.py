@@ -12,6 +12,7 @@ class AdminStates(StatesGroup):
 class NavigationStates(StatesGroup):
     preview_navigation = State()
     wishlist_navigation = State()
+    reviews_navigation = State()
 
 class StartState(StatesGroup):
     waiting_for_name = State()

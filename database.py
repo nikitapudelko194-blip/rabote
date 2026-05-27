@@ -56,6 +56,11 @@ class Database:
             async with db.execute("SELECT text, photo_file_id FROM reviews ORDER BY RANDOM() LIMIT 1") as cursor:
                 return await cursor.fetchone()
 
+    async def get_all_reviews(self):
+        async with aiosqlite.connect(self.db_file) as db:
+            async with db.execute("SELECT text, photo_file_id FROM reviews ORDER BY id") as cursor:
+                return await cursor.fetchall()
+
     async def add_preview(self, photo_file_id, order_index):
         async with aiosqlite.connect(self.db_file) as db:
             await db.execute("INSERT INTO preview (photo_file_id, order_index) VALUES (?, ?)", (photo_file_id, order_index))
