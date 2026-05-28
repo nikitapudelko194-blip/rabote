@@ -2,7 +2,7 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery, InputMediaPhoto
 from aiogram.fsm.context import FSMContext
 from states import NavigationStates
-from keyboards import get_navigation_keyboard
+from keyboards import get_navigation_keyboard_with_fav
 from database import Database
 
 router = Router()
@@ -10,7 +10,7 @@ db = Database()
 
 @router.message(F.text == "Предпоказ")
 async def show_preview(message: Message, state: FSMContext):
-    previews = await db.get_all_preview()
+    previews = await db.get_all_preview_with_id()
     if not previews:
         await message.answer("Пока нет товаров в предпоказе.")
         return
@@ -19,7 +19,10 @@ async def show_preview(message: Message, state: FSMContext):
     await state.update_data(items=previews, current_index=0)
     
     item = previews[0]
-    await message.answer_photo(photo=item[0], reply_markup=get_navigation_keyboard("preview"))
+    item_id, photo_file_id, _ = item
+    is_fav = await db.is_favorite(message.from_user.id, "preview", item_id)
+    
+    await message.answer_photo(photo=photo_file_id, reply_markup=get_navigation_keyboard_with_fav("preview", "preview", item_id, is_fav))
 
 @router.callback_query(F.data.startswith("preview_"), NavigationStates.preview_navigation)
 async def process_preview_navigation(callback: CallbackQuery, state: FSMContext):
@@ -49,9 +52,11 @@ async def process_preview_navigation(callback: CallbackQuery, state: FSMContext)
 
     await state.update_data(current_index=current_index)
     item = items[current_index]
+    item_id, photo_file_id, _ = item
+    is_fav = await db.is_favorite(callback.from_user.id, "preview", item_id)
     
     await callback.message.edit_media(
-        media=InputMediaPhoto(media=item[0]),
-        reply_markup=get_navigation_keyboard("preview")
+        media=InputMediaPhoto(media=photo_file_id),
+        reply_markup=get_navigation_keyboard_with_fav("preview", "preview", item_id, is_fav)
     )
     await callback.answer()

@@ -26,6 +26,13 @@ async def main():
     dp.include_router(reviews.router)
     dp.include_router(admin.router)
 
+    from handlers import favorites, support, admin_support, referral, admin_referral
+    dp.include_router(favorites.router)
+    dp.include_router(support.router)
+    dp.include_router(admin_support.router)
+    dp.include_router(referral.router)
+    dp.include_router(admin_referral.router)
+
     try:
         print("Бот успешно запущен!")
         await dp.start_polling(bot)

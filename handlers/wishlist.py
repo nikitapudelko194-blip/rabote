@@ -2,7 +2,7 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery, InputMediaPhoto
 from aiogram.fsm.context import FSMContext
 from states import NavigationStates
-from keyboards import get_navigation_keyboard
+from keyboards import get_navigation_keyboard_with_fav
 from database import Database
 
 router = Router()
@@ -10,7 +10,7 @@ db = Database()
 
 @router.message(F.text == "Вишлист")
 async def show_wishlist(message: Message, state: FSMContext):
-    wishlist = await db.get_all_wishlist()
+    wishlist = await db.get_all_wishlist_with_id()
     if not wishlist:
         await message.answer("Пока нет товаров в вишлисте.")
         return
@@ -19,7 +19,10 @@ async def show_wishlist(message: Message, state: FSMContext):
     await state.update_data(items=wishlist, current_index=0)
     
     item = wishlist[0]
-    await message.answer_photo(photo=item[0], caption=item[1], reply_markup=get_navigation_keyboard("wishlist"))
+    item_id, photo_file_id, caption, _ = item
+    is_fav = await db.is_favorite(message.from_user.id, "wishlist", item_id)
+    
+    await message.answer_photo(photo=photo_file_id, caption=caption, reply_markup=get_navigation_keyboard_with_fav("wishlist", "wishlist", item_id, is_fav))
 
 @router.callback_query(F.data.startswith("wishlist_"), NavigationStates.wishlist_navigation)
 async def process_wishlist_navigation(callback: CallbackQuery, state: FSMContext):
@@ -49,9 +52,11 @@ async def process_wishlist_navigation(callback: CallbackQuery, state: FSMContext
 
     await state.update_data(current_index=current_index)
     item = items[current_index]
+    item_id, photo_file_id, caption, _ = item
+    is_fav = await db.is_favorite(callback.from_user.id, "wishlist", item_id)
     
     await callback.message.edit_media(
-        media=InputMediaPhoto(media=item[0], caption=item[1]),
-        reply_markup=get_navigation_keyboard("wishlist")
+        media=InputMediaPhoto(media=photo_file_id, caption=caption),
+        reply_markup=get_navigation_keyboard_with_fav("wishlist", "wishlist", item_id, is_fav)
     )
     await callback.answer()

@@ -16,3 +16,13 @@ class NavigationStates(StatesGroup):
 
 class StartState(StatesGroup):
     waiting_for_name = State()
+
+class FavoritesStates(StatesGroup):
+    favorites_navigation = State()
+
+class SupportStates(StatesGroup):
+    waiting_for_message = State()
+
+class AdminSupportStates(StatesGroup):
+    waiting_for_reply = State()
+    reply_to_msg_id = State()
