@@ -1,5 +1,6 @@
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
+from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from keyboards import get_main_menu, get_inline_categories_menu
 
@@ -10,6 +11,7 @@ async def go_to_menu(message: Message):
     await message.answer("Вы вернулись в главное меню", reply_markup=get_main_menu())
 
 @router.message(F.text == "📂 Категории")
+@router.message(Command("categories"))
 async def show_categories(message: Message):
     await message.answer("Выберите нужную категорию:", reply_markup=get_inline_categories_menu())
 

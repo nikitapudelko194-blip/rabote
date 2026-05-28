@@ -33,6 +33,13 @@ async def main():
     dp.include_router(referral.router)
     dp.include_router(admin_referral.router)
 
+    from aiogram.types import BotCommand
+    await bot.set_my_commands([
+        BotCommand(command="start", description="Перезапуск бота"),
+        BotCommand(command="categories", description="📂 Категории"),
+        BotCommand(command="support", description="💬 Поддержка")
+    ])
+
     try:
         print("Бот успешно запущен!")
         await dp.start_polling(bot)

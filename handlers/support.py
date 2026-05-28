@@ -8,7 +8,10 @@ from config import ADMIN_ID
 router = Router()
 db = Database()
 
+from aiogram.filters import Command
+
 @router.message(F.text == "💬 Поддержка")
+@router.message(Command("support"))
 async def ask_support(message: Message, state: FSMContext):
     await message.answer("Напишите ваше сообщение для поддержки (вы также можете прикрепить 1 фото):")
     await state.set_state(SupportStates.waiting_for_message)
