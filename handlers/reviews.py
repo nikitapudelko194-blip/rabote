@@ -22,6 +22,21 @@ async def show_reviews(message: Message, state: FSMContext):
     text, photo_file_id = item
     await message.answer_photo(photo=photo_file_id, caption=text, reply_markup=get_navigation_keyboard("reviews"))
 
+@router.callback_query(F.data == "cat_reviews")
+async def cb_show_reviews(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+    reviews = await db.get_all_reviews()
+    if not reviews:
+        await callback.message.answer("Пока нет отзывов.")
+        return
+
+    await state.set_state(NavigationStates.reviews_navigation)
+    await state.update_data(items=reviews, current_index=0)
+    
+    item = reviews[0]
+    text, photo_file_id = item
+    await callback.message.answer_photo(photo=photo_file_id, caption=text, reply_markup=get_navigation_keyboard("reviews"))
+
 @router.callback_query(F.data.startswith("reviews_"), NavigationStates.reviews_navigation)
 async def process_reviews_navigation(callback: CallbackQuery, state: FSMContext):
     action = callback.data.split("_")[1]

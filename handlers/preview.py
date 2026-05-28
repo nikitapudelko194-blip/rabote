@@ -24,6 +24,23 @@ async def show_preview(message: Message, state: FSMContext):
     
     await message.answer_photo(photo=photo_file_id, reply_markup=get_navigation_keyboard_with_fav("preview", "preview", item_id, is_fav))
 
+@router.callback_query(F.data == "cat_preview")
+async def cb_show_preview(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+    previews = await db.get_all_preview_with_id()
+    if not previews:
+        await callback.message.answer("Пока нет товаров в предпоказе.")
+        return
+
+    await state.set_state(NavigationStates.preview_navigation)
+    await state.update_data(items=previews, current_index=0)
+    
+    item = previews[0]
+    item_id, photo_file_id, _ = item
+    is_fav = await db.is_favorite(callback.from_user.id, "preview", item_id)
+    
+    await callback.message.answer_photo(photo=photo_file_id, reply_markup=get_navigation_keyboard_with_fav("preview", "preview", item_id, is_fav))
+
 @router.callback_query(F.data.startswith("preview_"), NavigationStates.preview_navigation)
 async def process_preview_navigation(callback: CallbackQuery, state: FSMContext):
     action = callback.data.split("_")[1]

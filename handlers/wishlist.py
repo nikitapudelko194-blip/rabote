@@ -24,6 +24,23 @@ async def show_wishlist(message: Message, state: FSMContext):
     
     await message.answer_photo(photo=photo_file_id, caption=caption, reply_markup=get_navigation_keyboard_with_fav("wishlist", "wishlist", item_id, is_fav))
 
+@router.callback_query(F.data == "cat_wishlist")
+async def cb_show_wishlist(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+    wishlist = await db.get_all_wishlist_with_id()
+    if not wishlist:
+        await callback.message.answer("Пока нет товаров в вишлисте.")
+        return
+
+    await state.set_state(NavigationStates.wishlist_navigation)
+    await state.update_data(items=wishlist, current_index=0)
+    
+    item = wishlist[0]
+    item_id, photo_file_id, caption, _ = item
+    is_fav = await db.is_favorite(callback.from_user.id, "wishlist", item_id)
+    
+    await callback.message.answer_photo(photo=photo_file_id, caption=caption, reply_markup=get_navigation_keyboard_with_fav("wishlist", "wishlist", item_id, is_fav))
+
 @router.callback_query(F.data.startswith("wishlist_"), NavigationStates.wishlist_navigation)
 async def process_wishlist_navigation(callback: CallbackQuery, state: FSMContext):
     action = callback.data.split("_")[1]

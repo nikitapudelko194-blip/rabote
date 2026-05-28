@@ -6,9 +6,20 @@ def get_main_menu():
             [KeyboardButton(text="Отзывы"), KeyboardButton(text="Предпоказ")],
             [KeyboardButton(text="Вишлист"), KeyboardButton(text="Донат")],
             [KeyboardButton(text="⭐ Избранное"), KeyboardButton(text="💬 Поддержка")],
-            [KeyboardButton(text="👥 Рефералы")]
+            [KeyboardButton(text="👥 Рефералы"), KeyboardButton(text="📂 Категории")]
         ],
         resize_keyboard=True
+    )
+
+def get_inline_categories_menu():
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="🖼 Предпоказ", callback_data="cat_preview"),
+             InlineKeyboardButton(text="🎁 Вишлист", callback_data="cat_wishlist")],
+            [InlineKeyboardButton(text="💬 Отзывы", callback_data="cat_reviews")],
+            [InlineKeyboardButton(text="🔙 В меню", callback_data="cat_main_menu"),
+             InlineKeyboardButton(text="🔄 Перезапуск бота", callback_data="cat_restart")]
+        ]
     )
 
 def get_admin_menu():
