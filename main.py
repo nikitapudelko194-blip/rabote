@@ -36,7 +36,6 @@ async def main():
     from aiogram.types import BotCommand
     await bot.set_my_commands([
         BotCommand(command="start", description="Перезапуск бота"),
-        BotCommand(command="categories", description="📂 Категории"),
         BotCommand(command="support", description="💬 Поддержка")
     ])
 
